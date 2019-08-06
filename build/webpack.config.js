@@ -6,6 +6,7 @@ const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
 const path = require('path');
 const fs = require('fs');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin')
 
 function resolve (dir) {
     return path.join(__dirname, '..', dir);
@@ -181,11 +182,11 @@ const config = {
 
                             // 这个是对publicPath使用的
                             name: '[name].[hash:10].[ext]',   // 文件名，这个是将图片放在打包后的img文件夹中
-                            publicPath: '../static/',
+                            publicPath: '../img/',
 
                             // 输出目录，表现效果相当于 outputPath + name 这样，可以直接写在name里如 myImage/[name].[ext] 效果一样
                             outputPath: function (fileName) {
-                                return 'static/' + fileName;    // 后面要拼上这个 fileName 才行
+                                return 'img/' + fileName;    // 后面要拼上这个 fileName 才行
                             }
 
                             // 文件路径使用 源代码中，图片相对于css文件路径
@@ -209,15 +210,13 @@ const config = {
     },
     // 将插件添加到webpack中
     // 如果还有其他插件，将两个数组合到一起就行了
-    plugins: ([
-        ...[
-            // HMR 需要的两个插件
-            new webpack.NamedModulesPlugin(),
-            new webpack.HotModuleReplacementPlugin(),
-            new ExtractTextPlugin('css/[name].css')
-        ],
-        ...entries.plugins
-    ]),
+    plugins: [
+        ...entries.plugins,
+        // HMR 需要的两个插件
+        new webpack.NamedModulesPlugin(),
+        new webpack.HotModuleReplacementPlugin(),
+        new ExtractTextPlugin('css/[name].css')
+    ],
     resolve: {
         // 省略后缀名
         extensions: ['.js', '.jsx'],
@@ -234,8 +233,9 @@ const config = {
 
 if (process.env.npm_lifecycle_event === 'build') {
     console.log('building..............');
-    config.output.publicPath = 'static';
-    config.plugins = [...config.plugins,
+    // config.output.publicPath = 'static';
+    config.plugins = [
+        ...config.plugins,
         ...[
             new CleanWebpackPlugin(['dist'], {
                 root: resolve(''),
@@ -252,7 +252,14 @@ if (process.env.npm_lifecycle_event === 'build') {
             //     name: 'vendor', // 这个对应的是 entry 的 key
             //     minChunks: 2
             // }),
-            new UglifyJSPlugin()
+            new UglifyJSPlugin(),
+            new CopyWebpackPlugin([
+                {
+                    from: path.resolve(__dirname, '../src/static'),
+                    to: 'static',
+                    // ignore: ['.*']
+                }
+            ])
         ]
     ];
     config.externals = {
