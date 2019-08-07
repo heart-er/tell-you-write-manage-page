@@ -6,10 +6,15 @@
  *
  */
 import React from 'react';
+import './footter.less';
 
 class Footter extends React.Component {
     render () {
-        return <div></div>
+        return <div id='footter'>
+            <div className='footter-copyright'>
+                @Copyright 2019 company
+            </div>
+        </div>
     }
 }
 

@@ -14,7 +14,9 @@ class Header extends React.Component {
         return <div id='header'>
             <div className={'header-box'}>
                 <div className={'header-title'}>
-
+                    <img className={'header-title-logo'}
+                        src={require('@/img/title-logo.svg')}
+                         alt=""/>
                 </div>
                 <div className={'header-avatar'}>
                     <img src={avatarIcon} alt=""/>
